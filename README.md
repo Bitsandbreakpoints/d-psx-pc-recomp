@@ -1,5 +1,7 @@
 ![Bits and Breakpoints – reComps](images/banner.webp)
 
+<p align="center"><strong>Classic games, recompiled for today – easy to play, with optional enhancements, for everyone.</strong></p>
+
 # D – PC port
 
 A native Windows version of the PlayStation horror adventure **D**
