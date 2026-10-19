@@ -1,3 +1,5 @@
+![Bits and Breakpoints – reComps](images/banner.webp)
+
 # D – PC port
 
 A native Windows version of the PlayStation horror adventure **D**
@@ -86,8 +88,8 @@ pictures shown here are © their respective owners.*
   will not help you find, game files.
 - **This repository contains no game files:** no code, movies, graphics,
   sound, music or data files from the game, and no BIOS. It holds only this
-  README, the third-party licence list and pictures: the launcher and its
-  lists (our own), plus the box cover and in-game pictures, which are © their
+  README, the third-party licence list and pictures: our banner, the
+  launcher and its lists (our own), plus the box cover and in-game pictures, which are © their
   respective owners and shown only to identify the game.
 - **No game assets are distributed.** The release contains the port's own
   program and the licences of the open-source libraries it uses. Every

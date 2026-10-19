@@ -21,6 +21,7 @@ neither is part of the program.
 
 | Picture | Author | Licence | Source |
 |---|---|---|---|
+| `images/banner.webp` | Bits and Breakpoints (the banner of our projects) | © Bits and Breakpoints | – |
 | `images/launcher.png`, `images/load-game.png` | the port's launcher (its background is drawn in code) | – | – |
 | `images/save-states.png`, `images/pause-menu.png` | the port's pause menu over the game | the game's pictures are © their respective owners; shown for identification | – |
 | `images/title.png`, `images/dining-hall.png`, `images/inventory.png`, `images/puzzle.png`, `images/disc-2.png` | pictures of the game running in this port | the game's pictures are © their respective owners; shown for identification | – |
