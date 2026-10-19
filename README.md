@@ -1,13 +1,13 @@
-![Bits and Breakpoints – reComps](images/banner.webp)
+![Bits and Breakpoints reComps](images/banner.webp)
 
-<p align="center"><strong>Classic games, recompiled for today – easy to play, with optional enhancements, for everyone.</strong></p>
+<p align="center"><strong>Classic games, recompiled for today. Easy to play, with optional enhancements, for everyone.</strong></p>
 
-# D – PC port
+# D PC port
 
 A native Windows version of the PlayStation horror adventure **D**
-(WARP / Acclaim, 1995). It runs the game's own logic natively on Windows –
-no emulator and no BIOS – with **save states**, **pause anywhere**, sharper
-pictures and a number of quality-of-life improvements.
+(WARP / Acclaim, 1995). It runs the game's own logic natively on Windows,
+with no emulator and no BIOS, and adds **save states**, **pause anywhere**,
+sharper pictures and a number of quality-of-life improvements.
 
 **You need your own copy of the game.** The port reads the movies, pictures,
 sound and data from disc images that you make from your own three original
@@ -21,19 +21,19 @@ discs.
 
 ![The launcher](images/launcher.png)
 
-## Save anywhere – a first for D
+## Save anywhere: a first for D
 
 The original D has no way to save. It wants to be finished in one sitting:
 two hours of real time in Laura's nightmare, and if you have to stop, you
 start over. This port changes that.
 
-- **Pause at any moment** – with Start or P, even in the middle of a movie.
+- **Pause at any moment** with Start or P, even in the middle of a movie.
   The picture freezes, and the movie and its sound go on exactly where they
   stopped.
 - **Save states in 8 slots**, each with a picture of the moment, the disc,
   the time played and the date. Save while you explore the castle, in a
-  movie or in the inventory, and pick up exactly where you left off – same
-  room, same clock, same movie frame.
+  movie or in the inventory, and pick up exactly where you left off: the same
+  room, the same clock, the same movie frame.
 - **Load from the pause menu**, or start the game straight from a save with
   **LOAD GAME** in the launcher. The right disc is put in by itself.
 - **Delete** the saves you no longer need, from the same list.
@@ -64,7 +64,7 @@ All releases are on the [Releases page](https://github.com/Bitsandbreakpoints/d-
    `.chd` work. If you choose only one, the others are found next to it.
    Each disc is checked against the known dump of *D (USA)* the first time.
 4. Click **PLAY**. When the game asks for the next disc, it is put in by
-   itself – no swapping.
+   itself, so there is no swapping.
 
 ## Pictures
 
@@ -97,7 +97,7 @@ pictures shown here are © their respective owners.*
   program and the licences of the open-source libraries it uses. Every
   movie, picture and sound is read at run time from your own disc images.
   The program is the game's logic rebuilt for Windows; it includes the small
-  tables the code needs (texts, the layout of rooms and movies – about 3 KB
+  tables the code needs (texts, the layout of rooms and movies: about 3 KB
   that also appear on the disc) but none of the game's assets.
 - *D* is a trademark of its owner. This is a non-commercial fan project and
   is not affiliated with or endorsed by WARP, Acclaim or Sony.
@@ -161,7 +161,7 @@ Plug-and-play with modern controllers!
 
 Everything can be changed under **SETTINGS → CONTROLS**.
 
-In the game: **Start** (or **P**) pauses and opens the menu – continue,
+In the game: **Start** (or **P**) pauses and opens the menu: continue,
 save state, load state, settings, back to the launcher. **Esc** goes back
 to the launcher, **F1** (or Select + Start) shows the settings. (In the
 intro and on the title screen, Start keeps its own job in the game.)
@@ -170,9 +170,9 @@ intro and on the title screen, Start keeps its own job in the game.)
 
 Everything stays in the program's folder:
 
-- `settings.ini` – the settings.
-- `saves/slot1.state` … `slot8.state` – the save states (under 1.5 MB each).
-- `d.log` – a log for troubleshooting.
+- `settings.ini`: the settings.
+- `saves/slot1.state` … `slot8.state`: the save states (under 1.5 MB each).
+- `d.log`: a log for troubleshooting.
 
 ## FAQ
 
