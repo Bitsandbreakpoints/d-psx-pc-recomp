@@ -19,6 +19,22 @@ discs.
   <em>The game this port needs: D (USA), SLUS-00128 / 00173 / 00174. Cover © its respective owners.</em>
 </p>
 
+## Download
+
+**[⬇ Download the latest release (d-pc.zip)](https://github.com/Bitsandbreakpoints/d-psx-pc-recomp/releases/latest/download/d-pc.zip)**
+
+All releases are on the [Releases page](https://github.com/Bitsandbreakpoints/d-psx-pc-recomp/releases).
+
+1. Download `d-pc.zip` and unzip it anywhere. Keep `d.exe` and `game.dll`
+   together.
+2. Start `d.exe` (Windows 10 or later; no installation).
+3. Click **CHOOSE DISCS** and pick your three disc images at once
+   (Ctrl/Shift-click), or drop them on the window. `.bin`/`.cue` and
+   `.chd` work. If you choose only one, the others are found next to it.
+   Each disc is checked against the known dump of *D (USA)* the first time.
+4. Click **PLAY**. When the game asks for the next disc, it is put in by
+   itself, so there is no swapping.
+
 ![The launcher](images/launcher.png)
 
 ## Save anywhere: a first for D
@@ -49,22 +65,6 @@ the time played and when it was saved.*
 ![LOAD GAME in the launcher](images/load-game.png)
 
 *LOAD GAME in the launcher: start from any save, or delete it.*
-
-## Download
-
-**[⬇ Download the latest release (d-pc.zip)](https://github.com/Bitsandbreakpoints/d-psx-pc-recomp/releases/latest/download/d-pc.zip)**
-
-All releases are on the [Releases page](https://github.com/Bitsandbreakpoints/d-psx-pc-recomp/releases).
-
-1. Download `d-pc.zip` and unzip it anywhere. Keep `d.exe` and `game.dll`
-   together.
-2. Start `d.exe` (Windows 10 or later; no installation).
-3. Click **CHOOSE DISCS** and pick your three disc images at once
-   (Ctrl/Shift-click), or drop them on the window. `.bin`/`.cue` and
-   `.chd` work. If you choose only one, the others are found next to it.
-   Each disc is checked against the known dump of *D (USA)* the first time.
-4. Click **PLAY**. When the game asks for the next disc, it is put in by
-   itself, so there is no swapping.
 
 ## Pictures
 
