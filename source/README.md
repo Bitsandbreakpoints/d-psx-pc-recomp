@@ -1,144 +1,156 @@
-# D: PC-port
+# D: PC port (source)
 
-En native Windows-version av PS1-spelet *D* (Warp/Acclaim, 1995, tre
-skivor), byggd från den dekompilerade källkoden i projektet. Ingen
-emulator behövs.
+A native Windows version of the PlayStation game *D* (WARP / Acclaim,
+1995, three discs), built from a decompilation of the game. No emulator is
+needed.
 
-**Status:** se `PLAN.md`. Launchern hittar och kontrollerar de tre skivorna
-(`.bin/.cue` eller `.chd`). Spelet körs native: filmerna (MDEC och XA-ljud
-strömmas från skivan i konsolens takt), titelskärmen och musiken, slottets
-platser, inventariet och ljudeffekterna. Skivbytet sker automatiskt med en
-virtuell lucka. Bilden kan visas skarp, mjuk, som CRT eller som mjuk TV.
-Filmernas färger kan uppsamplas mjukt, och logotyperna kan hoppas över.
-Inställningen "Softer bass" (Sound, på som standard) tar bort den djupaste
-basen ur ljudeffekterna: skrolljudet i inventariet är en djup duns som kan
-få högtalare att skallra. På konsolen hördes den genom TV:ns lilla
-högtalare. Filmerna och musiken ändras inte.
-Tangentbord eller XInput-handkontroll, och F1 (eller Select+Start) öppnar
-inställningarna mitt i spelet. Start pausar när som helst i spelet, även
-mitt i en film (utom i introt, på titelskärmen och i den första filmen, där
-Start har en funktion i spelet); P, Pause eller R3 (höger spak intryckt)
-pausar alltid. Bilden står kvar, och filmen och ljudet fortsätter exakt där
-de stannade.
+This folder holds the port's own program. The decompiled game code it is
+built together with is not published, so it does not build on its own
+(see the main README).
 
-Pausskärmen är en meny: fortsätt, **spara läge** (save state), **ladda
-läge**, inställningar och tillbaka till launchern. Det finns åtta platser
-med en liten bild, skiva, speltid och datum. "LOAD GAME" i launchern visar
-dem: Enter/A startar spelet direkt från ett läge (rätt skiva läggs i), och
-Delete-knappen, Del eller X raderar ett (efter en fråga). Spara går när
-man ser sig omkring, i filmerna och i inventariet, men inte mitt i ett
-pussel eller på titelskärmen. Lägena ligger i `saves/` bredvid `d.exe` (knappt
-1 MB styck). De följer med när porten byggs om; bara om spelets kod
-(`game.dll`) eller uppbyggnaden av det sparade ändras går de inte att
-ladda, och listan säger då varför.
+The launcher finds and checks the three discs (`.bin/.cue` or `.chd`). The
+game runs natively: the movies (MDEC pictures and XA sound streamed from
+the disc at the console's pace), the title screen and its music, the
+castle, the inventory and the sound effects. The disc change happens by
+itself, with a virtual lid. The picture can be shown sharp, smooth, as a
+CRT or as a soft TV. The movies' colours can be upsampled smoothly, and
+the logos can be skipped. The "Softer bass" setting (Sound, on by default)
+takes the deepest bass out of the sound effects: scrolling in the
+inventory is a deep thump that can make speakers rattle. On the console it
+was heard through the TV's small speaker. The movies and the music are not
+changed.
 
-## Du behöver dina egna skivor
-Porten innehåller ingen grafik, inget ljud, inga filmer och inga andra
-filer från spelet, och ingen BIOS. Du väljer din egen avbild av *D (USA)*
-i launchern: "CHOOSE DISCS" (markera en, två eller alla tre filerna med
-Ctrl/Skift) eller dra in filerna i fönstret. Väljer du bara en skiva hittas
-de andra två automatiskt om de ligger bredvid med samma namn
-och ett annat skivnummer, t.ex. `D (USA) (Disc 1).chd` → `(Disc 2)`,
-`(Disc 3)`. Det räcker med skiva 1 för att börja: när spelet ber om nästa
-skiva och den inte är vald frågar spelfönstret efter filen.
+Keyboard or XInput controller; F1 (or Select+Start) opens the settings in
+the game. Start pauses at any moment in the game, even in the middle of a
+movie (except in the intro, on the title screen and in the first movie,
+where Start has a use in the game); P, Pause or R3 (the right stick pressed
+in) always pause. The picture stays, and the movie and its sound go on
+exactly where they stopped.
 
-Avbilderna måste ha hela sektorer (`.bin/.cue` eller `.chd` från en sådan),
-eftersom filmerna och musiken ligger i XA-sektorer. En `.iso` räcker inte.
-Första gången en skiva väljs jämförs dataspårets SHA1 med den kända
-avbilden (några sekunder per skiva, i bakgrunden: launchern visar en
-snurrande indikator med skivans namn och hur långt den kommit, och PLAY
-väntar tills den är klar); sedan räcker filens storlek och tid.
+The pause screen is a menu: continue, **save state**, **load state**,
+settings and back to the launcher. There are eight slots, each with a
+small picture, the disc, the time played and the date. "LOAD GAME" in the
+launcher lists them: Enter/A starts the game straight from a state (the
+right disc is put in), and the Delete button, Del or X deletes one (after
+a question). Saving works while looking around, in the movies and in the
+inventory, but not in the middle of a puzzle or on the title screen. The
+states are kept in `saves/` next to `d.exe` (under 1.5 MB each). They keep
+working when the port is rebuilt; only if the game's code (`game.dll`) or
+the layout of what is saved changes can they not be loaded, and the list
+then says why.
 
-Inställningarna sparas i `settings.ini` bredvid programmet.
+## You need your own discs
+The port contains no graphics, sound, movies or other files from the
+game, and no BIOS. You choose your own images of *D (USA)* in the
+launcher: "CHOOSE DISCS" (select one, two or all three files with
+Ctrl/Shift) or drop the files on the window. If you choose only one disc,
+the other two are found by themselves if they lie next to it with the same
+name and another disc number, for example `D (USA) (Disc 1).chd` →
+`(Disc 2)`, `(Disc 3)`. Disc 1 is enough to start: when the game asks for
+the next disc and it has not been chosen, the game window asks for the
+file.
 
-## Bygga
-Krav: Windows 10/11 och Python 3. Spelkoden kommer från projektet
-(`../src`, `../include`), PS1-typerna från PSn00bSDK:s headers i
-`../tools/psn00bsdk`, och listan över spelets oinitierade variabler från
-`../asm/data/bss.bss.s` (kör `build.py split` i projektet om `asm/` saknas).
+The images must have whole sectors (`.bin/.cue`, or a `.chd` made from
+one), since the movies and the music are in XA sectors. An `.iso` is not
+enough. The first time a disc is chosen, the SHA-1 of its data track is
+compared with the known image (a few seconds per disc, in the background:
+the launcher shows a spinning indicator with the disc's name and how far
+it has come, and PLAY waits until it is done); after that, the file's size
+and time are enough.
+
+The settings are kept in `settings.ini` next to the program.
+
+## Building
+Requirements: Windows 10/11 and Python 3. The game code comes from the
+decompilation project (`../src`, `../include`), the PS1 types from
+PSn00bSDK's headers in `../tools/psn00bsdk`, and the list of the game's
+uninitialised variables from `../asm/data/bss.bss.s`. None of these are
+published, so the build stops without them.
 
 ```bash
 build.bat
 ```
 
-Första gången laddas kompilatorn (llvm-mingw) och ninja ner till `tools/`
-(SHA256-kontrollerade, ca 190 MB). Resultatet blir `build/d.exe`.
-`build.bat --debug` ger ett felsökningsbygge. Från projektets rot gör
-`runpc.bat` samma sak och startar sedan programmet (`--no-run`: bara bygg,
-`--debug`: felsökningsbygge).
+The first time, the compiler (llvm-mingw) and ninja are downloaded to
+`tools/` (SHA-256 checked, about 190 MB). The result is `build/d.exe` and
+`build/game.dll`. `build.bat --debug` makes a debug build.
 
-## Teknik i korthet
-- Två filer: `d.exe` (launchern, fönstret, PS1-biblioteken under
-  `src/psx/`) och `game.dll`, spelets dekompilerade kod och data på fast
-  adress (0x60000000), som anropar biblioteken i `d.exe` (listan skrivs av
-  `tools/exe_exports.py` när det byggs). Sparlägena innehåller adresser
-  till spelets kod, så de gäller så länge `game.dll` är densamma: porten
-  kan byggas om utan att lägena slutar fungera.
-- 32-bitars Windows-program (`--large-address-aware`): PS1-minnet ligger på
-  sina ursprungliga adresser (0x80000000), och spelets oinitierade
-  variabler ligger där de låg på konsolen (absoluta symboler som
-  `configure.py` genererar), så spelkoden körs som den är. Den enda
-  ändringen i `../src` är `PC_SAFE_POINT()` överst i huvudloopen (ett tomt
-  makro på PS1, se nedan).
-- Direct3D 11 för bilden, XInput för handkontroller, XAudio2 för ljud.
-  Allt ingår i Windows.
-- Sonys PS1-bibliotek som D anropar (82 funktioner: grafik, CD och
-  strömning, MDEC, ljud, handkontroll, räknare) skrivs om i C under
-  `src/psx/`. Grunden (fönster, GPU, SPU, launcher, skivläsare) kommer från
-  PC-porten av American Pool.
-- Filmerna: CD:n läser i verklig tid (150 sektorer/s), `stream.c` fogar
-  ihop STR-bildrutorna och skickar XA-ljudet till `xa.c`; skivläsaren läser
-  de närmaste två sekunderna i förväg på en egen tråd, och ljudet spelar
-  vidare medan avbilden läses (en kall läsning ur en CHD kan ta tiondels
-  sekunder); `mdec.c` avkodar
-  bildrutorna (VLC, IDCT, YCbCr→RGB) och spelets egen filmspelare
-  (`../src/movie.c`) lägger dem i VRAM kolumn för kolumn.
-- Spara läge (`src/psx/savestate.c`): överst i spelets huvudloop finns hela
-  spelets tillstånd i minnet (inget på stacken), så där tas läget:
-  PS1-minnet, spelets egna variabler och biblioteksersättningarnas
-  tillstånd (VRAM, ljud-RAM och röster, XA-kön, CD:n och strömningen, MDEC,
-  räknare, handkontroll, debugtext), varje del bakom en märkning, packat
-  med miniz. Att ladda startar om spelet och lägger tillbaka läget vid
-  första varvet. Pausmenyn låter spelet gå en bildruta till (tyst, under
-  pausskärmen) fram till den punkten. Läget innehåller adresser till
-  spelets kod (anrop tillbaka), därför en kontrollsumma av `game.dll` i
-  filhuvudet, och storleken på varje del: ett läge från ett bygge där
-  någon del ändrats avvisas med en förklaring i listan.
+## How it works
+- Two files: `d.exe` (the launcher, the window, the PS1 libraries under
+  `src/psx/`) and `game.dll`, the game's decompiled code and data at a
+  fixed address (0x60000000), which calls the libraries in `d.exe` (the
+  list is written by `tools/exe_exports.py` during the build). The save
+  states hold addresses of the game's code, so they stay valid as long as
+  `game.dll` is the same: the port can be rebuilt without breaking them.
+- A 32-bit Windows program (`--large-address-aware`): the PS1 memory lies
+  at its original addresses (0x80000000), and the game's uninitialised
+  variables lie where they were on the console (absolute symbols that
+  `configure.py` generates), so the game code runs as it is. The only
+  change to the game code is `PC_SAFE_POINT()` at the top of its main loop
+  (an empty macro on the PS1).
+- Direct3D 11 for the picture, XInput for controllers, XAudio2 for sound.
+  All of them are part of Windows.
+- The Sony PS1 libraries that D calls (82 functions: graphics, CD and
+  streaming, MDEC, sound, controllers, counters) are written anew in C
+  under `src/psx/`. The base (window, GPU, SPU, launcher, disc reader) comes
+  from the PC port of American Pool.
+- The movies: the CD reads in real time (150 sectors a second);
+  `stream.c` puts the STR frames together and sends the XA sound to
+  `xa.c`. The disc reader reads the next two seconds ahead on a thread of
+  its own, and the sound plays on while the image is read (a cold read
+  from a CHD can take tenths of a second). `mdec.c` decodes the frames
+  (VLC, IDCT, YCbCr→RGB), and the game's own movie player puts them into
+  VRAM column by column.
+- Save states (`src/psx/savestate.c`): at the top of the game's main loop
+  the whole state of the game is in memory (nothing on the stack), so the
+  state is taken there: the PS1 memory, the game's own variables and the
+  state of the library replacements (VRAM, sound RAM and voices, the XA
+  queue, the CD and its streaming, MDEC, counters, controllers, debug
+  text), each part behind a mark, packed with miniz. Loading starts the
+  game again and puts the state back at the first pass. The pause menu
+  lets the game run one more frame (silent, under the pause screen) to
+  that point. The state holds addresses of the game's code (callbacks),
+  hence a checksum of `game.dll` in the file header, and the size of every
+  part: a state from a build where a part has changed is refused, with
+  the reason in the list.
 
-## Tester
-Inga av testerna använder det globala tangentbordet, så datorn går att
-använda medan de körs. Skivorna tas från `build/settings.ini` (välj dem i
-launchern en gång).
+## Tests
+None of the tests use the global keyboard, so the computer can be used
+while they run. The discs are taken from `build/settings.ini` (choose
+them in the launcher once).
 
-- `python tests/play.py`: skriptade körningar (intro, slottet, kompakten,
-  skivbytet) med bildmontage i `build/test/play/`; `python tests/play.py
-  puzzles` startar alla pussel och systemskärmar (på rätt skiva).
-- `python tests/compare_duckstation.py [skiva1.cue]`: samma skärmar i
-  DuckStation och i porten, bilder och differenser i `build/test/compare/`
-  (matsalen: medel 0,9 av 255).
-- `python tests/compare_sound.py [skiva1.cue]`: ljudet i DuckStation och i
-  porten genom samma förlopp: titelmusiken (XA) och matsalens bakgrundsljud
-  (SPU) jämförs i nivå, spektrum och vågform. DuckStations ljudinspelning
-  avkodas med `tests/mf_to_wav.c` (Windows Media Foundation).
-- `python tests/savestate.py`: sparar ett läge (matsalen, en film,
-  slottet på skiva 2) och spelar vidare, laddar det i en ny körning med
-  samma knappar efteråt och jämför bilderna (`build/test/savestate/`;
-  matsalen och skiva 2: identiska). I ett pussel ska sparandet vägras.
-- `tests/test_mdec.c`: avkodar en STR-bildruta fristående med `mdec.c`.
+- `python tests/play.py`: scripted runs (intro, the castle, the compact,
+  the disc change) with picture montages in `build/test/play/`;
+  `python tests/play.py puzzles` starts every puzzle and system screen (on
+  the right disc).
+- `python tests/compare_duckstation.py [disc1.cue]`: the same screens in
+  DuckStation and in the port, with pictures and differences in
+  `build/test/compare/` (the dining hall: a mean of 0.9 out of 255).
+- `python tests/compare_sound.py [disc1.cue]`: the sound in DuckStation
+  and in the port through the same steps: the title music (XA) and the
+  dining hall's background sound (SPU) are compared in level, spectrum
+  and waveform. DuckStation's audio capture is decoded with
+  `tests/mf_to_wav.c` (Windows Media Foundation).
+- `python tests/savestate.py`: saves a state (the dining hall, a movie,
+  the castle on disc 2) and plays on, loads it in a new run with the same
+  buttons afterwards and compares the pictures (`build/test/savestate/`;
+  the dining hall and disc 2: identical). In a puzzle, saving must be
+  refused.
+- `tests/test_mdec.c`: decodes an STR frame on its own with `mdec.c`.
 
-## Felsökning
-Miljövariabler: `D_AUTOSTART=1` (startar spelet direkt),
-`D_INPUT=<bildruta>[-<sista>]:<knapp>,…` (trycker knappar),
-`D_VRAM_DUMP=<bildruta>,…` (`vram_<n>.bmp` och `shot_<n>.bmp`),
-`D_WAV_DUMP=<fil>` (spelar in det som hörs), `D_MUTE=1`,
-`D_LEAVE=<bildruta>`, `D_PAUSE=<bildruta>:<ms>` (pausar som P),
-`D_SAVE_STATE=<bildruta>:<plats>` (sparar ett läge utan pausskärm),
-`D_LOAD_STATE=<plats>` (med `D_AUTOSTART`: startar från ett läge),
-`D_SAVE_DIR=<mapp>` (lägen någon annanstans än `saves/`), `D_EVENT=<vblank>:<händelse>[@<plats>]` (startar ett
-pussel eller en systemskärm, t.ex. `75` = skivbyte) och `D_NATIVE=1`
-(originalupplösning, inga förbättringar), `D_SOUND_LOG=1` (loggar varje
-`SsVoKeyOn` med programmets toner). Loggen
-skrivs till `d.log` bredvid exe-filen; funktioner som inte är skrivna loggar
-sitt första anrop där.
+## Debugging
+Environment variables: `D_AUTOSTART=1` (starts the game at once),
+`D_INPUT=<frame>[-<last>]:<button>,…` (presses buttons),
+`D_VRAM_DUMP=<frame>,…` (`vram_<n>.bmp` and `shot_<n>.bmp`),
+`D_WAV_DUMP=<file>` (records what is heard), `D_MUTE=1`,
+`D_LEAVE=<frame>`, `D_PAUSE=<frame>:<ms>` (pauses as P does),
+`D_SAVE_STATE=<frame>:<slot>` (saves a state without the pause screen),
+`D_LOAD_STATE=<slot>` (with `D_AUTOSTART`: starts from a state),
+`D_SAVE_DIR=<folder>` (states somewhere other than `saves/`),
+`D_EVENT=<vblank>:<event>[@<location>]` (starts a puzzle or a system
+screen, for example `75` = disc change), `D_NATIVE=1` (original
+resolution, no enhancements) and `D_SOUND_LOG=1` (logs every `SsVoKeyOn`
+with the program's tones). The log is written to `d.log` next to the exe;
+functions that are not written yet log their first call there.
 
-Se `PLAN.md` för hela planen och `THIRD_PARTY.md` för licenser.
+See `THIRD_PARTY.md` for the licences.
