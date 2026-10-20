@@ -89,10 +89,12 @@ pictures shown here are © their respective owners.*
   own three original *D (USA)* discs. This project does not provide, and
   will not help you find, game files.
 - **This repository contains no game files:** no code, movies, graphics,
-  sound, music or data files from the game, and no BIOS. It holds only this
-  README, the third-party licence list and pictures: our banner, the
-  launcher and its lists (our own), plus the box cover and in-game pictures, which are © their
-  respective owners and shown only to identify the game.
+  sound, music or data files from the game, and no BIOS. It holds this
+  README, the third-party licence list, the source code of the port's own
+  program (see [Source code](#source-code)) and pictures: our banner, the
+  launcher and its lists (our own), plus the box cover and in-game
+  pictures, which are © their respective owners and shown only to identify
+  the game.
 - **No game assets are distributed.** The release contains the port's own
   program and the licences of the open-source libraries it uses. Every
   movie, picture and sound is read at run time from your own disc images.
@@ -186,8 +188,25 @@ launcher tells you if your image is not the known one.
 **Why not `.iso`?** The movies and their sound are stored in raw CD sectors
 that an `.iso` cannot hold. Use `.bin`/`.cue` or `.chd`.
 
-**Is the source code available?** No. The port is built from a
-decompilation of the game, which is not published.
+**Is the source code available?** The port's own code is, in
+[`source/`](source). The decompiled game code is not published, so the
+source cannot be built on its own (see [Source code](#source-code)).
+
+## Source code
+
+The [`source/`](source) folder holds the source code of the port's own
+program, `d.exe`: the launcher, the window, picture and sound output, the
+disc reader, the save states, and the PlayStation's libraries written anew
+for Windows (graphics, sound chip, MDEC movies, CD streaming, controllers).
+It also holds the build scripts, the tests and the open-source libraries
+the port uses, with their licences.
+
+**Disclaimer:** this is not a complete, buildable project. The game's own
+logic (the decompilation of D, which `game.dll` is built from) is not
+published, and the build needs it: the source refers to the game's
+headers and code in a folder next to it that is not part of this
+repository. The source is shared so that people can read how the port
+works and learn from it. To play, download the release.
 
 ## Credits
 

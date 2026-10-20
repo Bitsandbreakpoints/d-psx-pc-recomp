@@ -1,0 +1,23 @@
+# build output and downloaded tools
+/build/
+/build.ninja
+/.ninja_log
+/.ninja_deps
+/tools/llvm-mingw/
+/tools/ninja/
+/tools/_downloads/
+
+# never commit game data, BIOS or saves
+*.bin
+*.cue
+*.chd
+*.iso
+*.img
+*.mcd
+*.mcr
+/saves/
+settings.ini
+
+# debugging output (AP_VRAM_DUMP, the log)
+vram_*.bmp
+*.log

@@ -1,0 +1,5 @@
+; what game.dll exports to d.exe (configure.py)
+LIBRARY game.dll
+EXPORTS
+    psx_main
+    game_data_bounds
