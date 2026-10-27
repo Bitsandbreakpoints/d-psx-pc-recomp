@@ -19,6 +19,7 @@
  */
 #include <stdlib.h>
 #include "psx/psx.h"
+#include "psx/gpu.h"
 #include "psx/system.h"
 #include "game.h"
 
@@ -36,6 +37,37 @@ int psx_on_title_screen(void)
 }
 
 static int s_skip_logos;
+
+/*
+ * Double time: the game's two hour clock (g_Game.play_time, advanced by its
+ * VSync callback, ../src/main.c) goes at half its pace, so TIME OVER comes
+ * after four hours and the clock in the inventory moves half as fast.
+ * libetc.c tells after each run of the callback how far the clock was; half
+ * of what it gained is taken back (the odd one kept for the next time).
+ */
+static int s_double_time;
+static uint32_t s_clock_carry;
+
+void psx_set_double_time(int on)
+{
+    s_double_time = on;
+}
+
+void game_hooks_clock_ran(uint32_t before)
+{
+    uint32_t now = g_Game.play_time;
+    if (!s_double_time || now <= before) {
+        return;                         /* (the clock stood, or the game set it) */
+    }
+    uint32_t gained = now - before + s_clock_carry;
+    g_Game.play_time = before + gained / 2;
+    s_clock_carry = gained % 2;
+}
+
+uint32_t game_hooks_clock(void)
+{
+    return g_Game.play_time;
+}
 
 void psx_set_skip_logos(int on)
 {
@@ -133,9 +165,35 @@ static void log_start_use(int vblank)
     }
 }
 
+/*
+ * The knight fight (R05FIGHT, ../src/system_screens.c) shows 48 lines under
+ * its movie for the button to press and clears them every frame - from
+ * line 145, one below the movie's last line (143), in both buffers.  Line
+ * 144 keeps whatever lay there before (after a disc change, a row of the
+ * "insert the disc" picture: a line of coloured dots under the movie, as
+ * on the console).  The port clears the lines between the movie and that
+ * area while the fight runs.
+ */
+#define FIGHT_STEP              2       /* g_Event.step while the movie plays */
+#define FIGHT_CLEARED_FROM      145     /* the first line the game clears */
+#define FIGHT_STRIP_WIDTH       432     /* VRAM words, as the game clears */
+#define BUFFER_LINES            240     /* the second buffer's offset */
+
+static void clear_fight_gap(void)
+{
+    if (g_Event.id != EVENT_R05FIGHT || g_Event.step != FIGHT_STEP || g_Movie.height <= 0
+        || g_Movie.height >= FIGHT_CLEARED_FROM) {
+        return;
+    }
+    int lines = FIGHT_CLEARED_FROM - g_Movie.height;
+    gpu_fill(0, g_Movie.height, FIGHT_STRIP_WIDTH, lines, 0);
+    gpu_fill(0, BUFFER_LINES + g_Movie.height, FIGHT_STRIP_WIDTH, lines, 0);
+}
+
 void game_hooks_vblank(int vblank)
 {
     log_start_use(vblank);
     skip_logos();
     test_events(vblank);
+    clear_fight_gap();
 }

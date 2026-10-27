@@ -14,11 +14,12 @@ the disc at the console's pace), the title screen and its music, the
 castle, the inventory and the sound effects. The disc change happens by
 itself, with a virtual lid. The picture can be shown sharp, smooth, as a
 CRT or as a soft TV. The movies' colours can be upsampled smoothly, and
-the logos can be skipped. The "Softer bass" setting (Sound, on by default)
-takes the deepest bass out of the sound effects: scrolling in the
-inventory is a deep thump that can make speakers rattle. On the console it
-was heard through the TV's small speaker. The movies and the music are not
-changed.
+the logos can be skipped. "Double time" (Game) gives four hours to finish
+the game instead of two (the clock runs at half its pace). The "Softer
+bass" setting (Sound, on by default) takes the deepest bass out of the
+sound effects: scrolling in the inventory is a deep thump that can make
+speakers rattle. On the console it was heard through the TV's small
+speaker. The movies and the music are not changed.
 
 Keyboard or XInput controller; F1 (or Select+Start) opens the settings in
 the game. Start pauses at any moment in the game, even in the middle of a
@@ -88,6 +89,11 @@ The first time, the compiler (llvm-mingw) and ninja are downloaded to
   `configure.py` generates), so the game code runs as it is. The only
   change to the game code is `PC_SAFE_POINT()` at the top of its main loop
   (an empty macro on the PS1).
+- The vertical blank: on the PS1 an interrupt, 60 times a second, whose
+  callback runs the game's two hour clock even while a movie plays. In the
+  port the blank happens when the game calls `VSync()` (once a movie frame
+  during the movies), so `libetc.c` runs the callback once for every 1/60 s
+  that has passed, without the time the game is paused.
 - Direct3D 11 for the picture, XInput for controllers, XAudio2 for sound.
   All of them are part of Windows.
 - The Sony PS1 libraries that D calls (82 functions: graphics, CD and
@@ -110,7 +116,9 @@ The first time, the compiler (llvm-mingw) and ninja are downloaded to
   game again and puts the state back at the first pass. The pause menu
   lets the game run one more frame (silent, under the pause screen) to
   that point. The state holds addresses of the game's code (callbacks),
-  hence a checksum of `game.dll` in the file header, and the size of every
+  hence a checksum of `game.dll`'s code and data in the file header (not of
+  the whole file, whose debug information names the folder it was built
+  in), and the size of every
   part: a state from a build where a part has changed is refused, with
   the reason in the list.
 

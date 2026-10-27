@@ -66,6 +66,7 @@ typedef struct {
 
     /* game */
     int skip_intro;                     /* no company logos (Acclaim, WARP) before the title */
+    int double_time;                    /* four hours to play instead of two */
 } Settings;
 
 extern Settings g_settings_pc;

@@ -113,6 +113,8 @@ game with **F1**).
 - **Save states**: 8 slots with pictures, from the pause menu; **LOAD GAME**
   in the launcher; delete with a confirmation.
 - **Pause anywhere**, movies included (Start, P, Pause or R3).
+- **Double time**: four hours to finish the game instead of two. The clock
+  runs at half its pace; it can be switched on and off at any time.
 
 **Pictures and movies**
 - **Movies decoded like the console**: the PlayStation's MDEC decoding

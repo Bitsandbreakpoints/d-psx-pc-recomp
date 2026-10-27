@@ -19,8 +19,9 @@ int file_read(const char *path, void *buffer, int size);
  * folders); FALSE on failure. */
 int file_write(const char *path, const void *data, int size);
 
-/* A checksum of game.dll (the game's code) and where it was loaded: the
- * same as long as the game's code is (save states hold its addresses). */
+/* A checksum of game.dll's code and data and where it was loaded: the
+ * same as long as the game's code is (save states hold its addresses),
+ * wherever it was built. */
 uint64_t file_game_build_id(void);
 
 /* Deletes the file; FALSE if it could not be deleted. */

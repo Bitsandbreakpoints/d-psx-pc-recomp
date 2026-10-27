@@ -630,6 +630,12 @@ static void gameplay_tab(void)
     row("Skip the logos");
     check("##intro", &s->skip_intro);
     note("Acclaim and WARP before the title");
+    row("Double time");
+    check("##double_time", &s->double_time);
+    note("four hours to finish the game instead of two");
+    help("D gives you two hours of real time. With double time the clock runs at half its "
+         "pace: time over comes after four hours, and the clock in the inventory moves half "
+         "as fast. Takes effect at once, also in the middle of a game.");
 }
 
 static void reset_all(void)
@@ -692,6 +698,14 @@ enum { TAB_GRAPHICS, TAB_CONTROLS, TAB_SOUND, TAB_GAMEPLAY, TAB_COUNT };
 static int s_page = PAGE_MENU;
 static int s_tab = TAB_GRAPHICS;
 static int s_focus = 1;                 /* put the keyboard/controller focus on the page */
+/* The settings page has two places for the keys and the controller: the
+ * categories on the left (up/down shows each in turn, A goes into it, B
+ * leaves the settings) and the panel with the rows (A changes, B goes
+ * back to the categories).  The other place is out of the navigation's
+ * reach; the mouse reaches both. */
+static int s_in_panel;
+static int s_focus_panel;               /* put the focus on the panel's first row */
+static int s_popup_was_open;            /* (ImGui closes it on Esc / B before the page sees the key) */
 static int s_state_slot = -1;           /* chosen on the "Load game" page */
 static int s_delete_slot = -1;          /* the state the player is asked to delete */
 static char s_states_note[160];         /* why a state was not loaded */
@@ -939,6 +953,7 @@ static void open_page(int page)
     }
     s_page = page;
     s_focus = 1;
+    s_in_panel = 0;
 }
 
 /* the main menu; returns an enum LauncherAction */
@@ -1008,6 +1023,7 @@ static void settings_page(float w, float h)
     if (nav_key_pressed()) {
         s_mouse_focus = false;
     }
+    ImGui::PushItemFlag(ImGuiItemFlags_NoNav, s_in_panel != 0);
     for (int i = 0; i < TAB_COUNT; i++) {
         ImGui::SetCursorScreenPos(ImVec2(margin - 18 * scale, y));
         if (s_focus && i == s_tab) {
@@ -1015,6 +1031,8 @@ static void settings_page(float w, float h)
         }
         if (menu_item(TABS[i], TAB_SIZE * scale, TAB_WIDTH * scale, true, i == s_tab)) {
             s_tab = i;
+            s_in_panel = 1;             /* A / Enter: into the category's rows */
+            s_focus_panel = 1;
         }
         if (ImGui::IsItemFocused() && !s_mouse_focus) {
             s_tab = i;                  /* the keys show each page in turn; the mouse clicks */
@@ -1032,6 +1050,7 @@ static void settings_page(float w, float h)
     if (menu_item("Reset all", reset_size, TAB_WIDTH * scale, true, false)) {
         reset_all();
     }
+    ImGui::PopItemFlag();
 
     /* the panel */
     float left = PANEL_LEFT * scale, top = margin * 0.8f;
@@ -1040,24 +1059,41 @@ static void settings_page(float w, float h)
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 10 * scale);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(22 * scale, 16 * scale));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10 * scale, 8 * scale));
+    ImGui::PushItemFlag(ImGuiItemFlags_NoNav, !s_in_panel);
     ImGui::BeginChild("panel", ImVec2(w - left - margin * 0.6f, h - top - margin * 1.45f),
                       ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_NavFlattened);
+    if (s_focus_panel) {
+        ImGui::SetKeyboardFocusHere();  /* (the first row that takes it) */
+        s_focus_panel = 0;
+    }
     switch (s_tab) {
     case TAB_GRAPHICS: graphics_tab(); break;
     case TAB_CONTROLS: controls_tab(); break;
     case TAB_SOUND: sound_tab(); break;
     default: gameplay_tab(); break;
     }
+    if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)
+        && ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows)) {
+        s_in_panel = 1;                 /* (clicked into the rows) */
+    }
     ImGui::EndChild();
+    ImGui::PopItemFlag();
     ImGui::PopStyleVar(3);
     ImGui::PopStyleColor();
 
     static const char *const HINTS[] = { "Enter / A", "Select", "Esc / B", "Back" };
     hints(ImGui::GetWindowDrawList(), w - margin * 0.6f, h - margin * 0.75f, HINTS, 2);
-    if (!settings_capturing()
+    int popup_open = ImGui::IsPopupOpen("", ImGuiPopupFlags_AnyPopupId);
+    if (!settings_capturing() && !popup_open && !s_popup_was_open
         && (ImGui::IsKeyPressed(ImGuiKey_Escape, false) || ImGui::IsKeyPressed(ImGuiKey_GamepadFaceRight, false))) {
-        open_page(PAGE_MENU);
+        if (s_in_panel) {
+            s_in_panel = 0;             /* B / Esc: back to the categories */
+            s_focus = 1;
+        } else {
+            open_page(PAGE_MENU);
+        }
     }
+    s_popup_was_open = popup_open;
 }
 
 /* "Delete the state in slot N?" over the page; TRUE while it is shown */

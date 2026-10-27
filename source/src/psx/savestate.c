@@ -162,6 +162,33 @@ static const StateIO *state_layout(void)
     return &s_layout;
 }
 
+/*
+ * The builds of v1.0.0 and v1.0.1 took the id over the whole of game.dll,
+ * debug information and all, so it changed with the folder it was built
+ * in; their game.dll's code and data are those of the second id, and their
+ * states load wherever that game is.
+ */
+static const struct {
+    uint64_t whole_file, code;
+} EARLY_BUILDS[] = {
+    { 0x17A454853CC6D5B0ull, 0xA73721206F87B8C8ull },     /* v1.0.0, v1.0.1 */
+};
+
+/* TRUE if a state of that id was saved with the game that runs now */
+static int same_game(uint64_t build)
+{
+    uint64_t current = file_game_build_id();
+    if (build == current) {
+        return 1;
+    }
+    for (size_t i = 0; i < sizeof(EARLY_BUILDS) / sizeof(EARLY_BUILDS[0]); i++) {
+        if (build == EARLY_BUILDS[i].whole_file && current == EARLY_BUILDS[i].code) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* NULL if this program can load a state with that header, else why not */
 static const char *cannot_load(const StateHeader *header)
 {
@@ -171,7 +198,7 @@ static const char *cannot_load(const StateHeader *header)
         || memcmp(header->parts, layout->parts, sizeof(StatePart) * layout->part_count) != 0) {
         return "Saved by an older version of the program";
     }
-    if (header->build != file_game_build_id()) {
+    if (!same_game(header->build)) {
         return "Saved with other game code (game.dll)";
     }
     return NULL;

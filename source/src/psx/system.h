@@ -71,6 +71,9 @@ void psx_set_movie_smoothing(int on);
 /* The Acclaim and WARP logos skipped (the settings; game_hooks.c). */
 void psx_set_skip_logos(int on);
 
+/* The game's two hour clock at half its pace: four hours to play. */
+void psx_set_double_time(int on);
+
 /* TRUE while the title screen waits for a button. */
 int psx_on_title_screen(void);
 

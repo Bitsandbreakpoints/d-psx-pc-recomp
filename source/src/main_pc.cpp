@@ -344,6 +344,7 @@ static void apply_game_settings(void)
     psx_set_effects_bass_cut(!native && g_settings_pc.softer_bass);
     /* (tests: D_KEEP_LOGOS=1 plays them whatever the settings say) */
     psx_set_skip_logos(g_settings_pc.skip_intro && !GetEnvironmentVariableA("D_KEEP_LOGOS", NULL, 0));
+    psx_set_double_time(g_settings_pc.double_time);
 }
 
 /* F1 or Select+Start on controller 1 was pressed (not held) */

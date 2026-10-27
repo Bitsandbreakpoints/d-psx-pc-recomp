@@ -168,6 +168,7 @@ void gpu_set_texture_window(uint32_t e2)
 /* the TV picture in DISPENV.screen units */
 #define SCREEN_WIDTH_UNITS      256
 #define SCREEN_LINES            240
+#define SCREEN_INTERLACE_ROWS   256     /* disp.h above this: interlaced */
 
 void gpu_set_display_screen(int x, int y, int w, int h)
 {
@@ -774,19 +775,37 @@ int gpu_display_width(void)
     return s.disp_w;
 }
 
+/*
+ * The lines the TV shows: as many as the vertical display range
+ * (DISPENV.screen.h, 240 when 0), each one a row of VRAM from disp.y on -
+ * not disp.h, which only chooses the mode (above 256: interlaced, two rows
+ * a line).  They differ when a game shows more than its picture: the
+ * knight fight (../src/system_screens.c) adds 48 lines under the movie,
+ * where it draws the button to press.
+ */
+static int display_lines(void)
+{
+    int lines = s.screen_h ? s.screen_h : s.disp_h;    /* (no PutDispEnv() yet) */
+    if (s.disp_h > SCREEN_INTERLACE_ROWS) {
+        lines *= 2;
+    }
+    return lines < GPU_VRAM_HEIGHT ? lines : GPU_VRAM_HEIGHT;
+}
+
 int gpu_display_lines(void)
 {
-    return s.disp_h;
+    return display_lines();
 }
 
 const uint32_t *gpu_display_rgba(int *w, int *h)
 {
-    if (!s.disp_on || s.disp_w <= 0 || s.disp_h <= 0) {
+    int lines = display_lines();
+    if (!s.disp_on || s.disp_w <= 0 || lines <= 0) {
         return NULL;
     }
     int scale = s.disp_rgb24 ? 1 : hires_scale();
     scale = scale < 1 ? 1 : scale;
-    int size = s.disp_w * s.disp_h * scale * scale;
+    int size = s.disp_w * lines * scale * scale;
     if (size > s_picture_size) {
         free(s_picture);
         s_picture = (uint32_t *) malloc((size_t) size * sizeof(uint32_t));
@@ -796,13 +815,13 @@ const uint32_t *gpu_display_rgba(int *w, int *h)
         }
     }
     *w = s.disp_w * scale;
-    *h = s.disp_h * scale;
+    *h = lines * scale;
     if (hires_scale() && !s.disp_rgb24) {
-        hires_read(s_picture, s.disp_x, s.disp_y, s.disp_w, s.disp_h);
+        hires_read(s_picture, s.disp_x, s.disp_y, s.disp_w, lines);
         return s_picture;
     }
     uint32_t *out = s_picture;
-    for (int y = 0; y < s.disp_h; y++) {
+    for (int y = 0; y < lines; y++) {
         if (s.disp_rgb24) {
             const uint8_t *row = (const uint8_t *) g_vram[(s.disp_y + y) & (GPU_VRAM_HEIGHT - 1)];
             for (int x = 0; x < s.disp_w; x++) {

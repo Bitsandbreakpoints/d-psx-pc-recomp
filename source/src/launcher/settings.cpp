@@ -67,6 +67,7 @@ void settings_defaults(Settings *s)
         settings_default_pad(&s->players[p]);
     }
     s->skip_intro = 0;
+    s->double_time = 0;
 }
 
 /* settings.ini next to the exe */
@@ -149,6 +150,7 @@ static void set_value(Settings *s, const char *section, const char *key, const c
         else if (strcmp(key, "height") == 0) s->launcher_height = n;
     } else if (strcmp(section, "game") == 0) {
         if (strcmp(key, "skip_intro") == 0) s->skip_intro = n != 0;
+        else if (strcmp(key, "double_time") == 0) s->double_time = n != 0;
     }
 }
 
@@ -249,7 +251,9 @@ int settings_save(void)
     }
     fprintf(f, "[launcher]\n; its window as it was left (at 96 DPI)\nwidth = %d\nheight = %d\n\n",
             s->launcher_width, s->launcher_height);
-    fprintf(f, "[game]\n; the Acclaim and WARP logos before the title\nskip_intro = %d\n", s->skip_intro);
+    fprintf(f, "[game]\n; the Acclaim and WARP logos before the title\nskip_intro = %d\n"
+               "; 1 = four hours to play instead of two (the clock at half its pace)\ndouble_time = %d\n",
+            s->skip_intro, s->double_time);
     fclose(f);
     return 1;
 }

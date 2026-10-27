@@ -18,6 +18,8 @@ void libsnd_tick(void);
 void libsnd_mix_cd(int16_t *out, int frames);
 void libsnd_filter_effects(int16_t *out, int frames);
 void game_hooks_vblank(int vblank);
+uint32_t game_hooks_clock(void);
+void game_hooks_clock_ran(uint32_t before);
 
 /* one frame of sound: 44100 / 60 samples */
 #define SOUND_FRAME_SAMPLES     PSX_SOUND_FRAME_SAMPLES
@@ -61,8 +63,20 @@ void libetc_game_returned(void)
     threads_unlock(sound_lock());       /* (main() returned: still held) */
 }
 
+static double s_last_blank;              /* blanks_passed(): the last one counted */
+static double s_paused_since;           /* > 0 while the PC side pauses the game */
+
 void psx_set_paused(int paused)
 {
+    /* (the time paused does not count for the game's clock, blanks_passed()) */
+    if (paused && s_paused_since == 0) {
+        s_paused_since = threads_seconds();
+    } else if (!paused && s_paused_since > 0) {
+        if (s_last_blank > 0) {
+            s_last_blank += threads_seconds() - s_paused_since;
+        }
+        s_paused_since = 0;
+    }
     s_paused = paused;
     stream_pause(paused);
 }
@@ -102,6 +116,39 @@ void libetc_reset(void)
 {
     s_vsync_callback = NULL;
     s_vblank_count = 0;
+    s_last_blank = 0;
+}
+
+/*
+ * On the PS1 the vertical blank is an interrupt, 60 times a second whatever
+ * the game is doing, and the game's VSync callback counts them: its two
+ * hour clock (g_Game.play_time, TIME OVER, the clock in the inventory; see
+ * ../src/main.c) and the title screen's wait for its demo.  In the port the
+ * blank happens when the game calls VSync(), and while a movie plays that
+ * is once a movie frame, about 15 times a second: the clock went at a
+ * quarter of its pace during the movies.  So each blank runs the callback
+ * once for every 1/60 s that has passed by the PC's clock since the last
+ * one (at least once), leaving out the time the PC side held the game (the
+ * pause screen, the settings) and long stalls (a slow read of the disc
+ * image), which are not made up.  VSync(-1) still counts the game's calls.
+ */
+#define VBLANK_SECONDS          (1.0 / 60)
+#define MAX_BLANKS_AT_ONCE      10
+
+static int blanks_passed(void)
+{
+    double now = threads_seconds();
+    if (s_last_blank == 0 || s_last_blank > now + VBLANK_SECONDS) {
+        s_last_blank = now - VBLANK_SECONDS;        /* (a fresh start) */
+    }
+    int blanks = (int) ((now - s_last_blank) / VBLANK_SECONDS);
+    if (blanks > MAX_BLANKS_AT_ONCE) {
+        s_last_blank = now;                         /* (a stall: not made up) */
+        return MAX_BLANKS_AT_ONCE;
+    }
+    blanks = blanks < 1 ? 1 : blanks;
+    s_last_blank += blanks * VBLANK_SECONDS;
+    return blanks;
 }
 
 /*
@@ -141,9 +188,11 @@ static void vblank(void)
     stream_tick();                      /* the CD goes on reading */
     s_vblank_count++;
     game_hooks_vblank(s_vblank_count);  /* skipping the logos, tests */
-    if (s_vsync_callback) {
+    uint32_t clock = game_hooks_clock();
+    for (int blanks = blanks_passed(); blanks > 0 && s_vsync_callback; blanks--) {
         s_vsync_callback();
     }
+    game_hooks_clock_ran(clock);        /* (double time) */
     if (s_sound_realtime) {
         return;                         /* (psx_sound_frame()) */
     }
@@ -202,4 +251,7 @@ void libetc_state(StateIO *io)
     state_section(io, "ETC ");
     STATE(io, s_vsync_callback);
     STATE(io, s_vblank_count);
+    if (io->loading) {
+        s_last_blank = 0;               /* (the clock goes on from now) */
+    }
 }

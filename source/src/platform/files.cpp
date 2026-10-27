@@ -3,6 +3,7 @@
  */
 #include <windows.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "platform/files.h"
 
@@ -81,7 +82,23 @@ void file_exe_relative(const char *path, char *out, int size)
     snprintf(out, (size_t) size, "%s%s", dir, path);
 }
 
-/* FNV-1a over the file (read once), with the address it was loaded at */
+#define FNV_OFFSET              0xCBF29CE484222325ull
+#define FNV_PRIME               0x100000001B3ull
+
+static uint64_t fnv1a(uint64_t hash, const uint8_t *data, size_t size)
+{
+    for (size_t i = 0; i < size; i++) {
+        hash = (hash ^ data[i]) * FNV_PRIME;
+    }
+    return hash;
+}
+
+/*
+ * FNV-1a over what game.dll loads - its code and data sections, with their
+ * addresses - and the address it was loaded at.  Not over the whole file:
+ * its debug information names the folder it was built in, and its build id
+ * changes with every link, while the game is the same.
+ */
 uint64_t file_game_build_id(void)
 {
     static uint64_t s_id;
@@ -94,17 +111,38 @@ uint64_t file_game_build_id(void)
         return 0;
     }
     FILE *f = _wfopen(path, L"rb");
-    uint64_t hash = 0xCBF29CE484222325ull ^ (uint64_t) (uintptr_t) game;
-    if (f) {
-        static uint8_t buffer[64 * 1024];
-        size_t n;
-        while ((n = fread(buffer, 1, sizeof(buffer), f)) > 0) {
-            for (size_t i = 0; i < n; i++) {
-                hash = (hash ^ buffer[i]) * 0x100000001B3ull;
-            }
-        }
-        fclose(f);
+    if (!f) {
+        return 0;
     }
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    uint8_t *file = size > 0 ? (uint8_t *) malloc((size_t) size) : NULL;
+    int ok = file && fread(file, 1, (size_t) size, f) == (size_t) size;
+    fclose(f);
+    uint64_t hash = FNV_OFFSET ^ (uint64_t) (uintptr_t) game;
+    const IMAGE_DOS_HEADER *dos = (const IMAGE_DOS_HEADER *) file;
+    if (ok && size > (long) sizeof(*dos) && dos->e_magic == IMAGE_DOS_SIGNATURE
+        && dos->e_lfanew > 0 && dos->e_lfanew + (long) sizeof(IMAGE_NT_HEADERS32) <= size) {
+        const IMAGE_NT_HEADERS32 *nt = (const IMAGE_NT_HEADERS32 *) (file + dos->e_lfanew);
+        const IMAGE_SECTION_HEADER *section = IMAGE_FIRST_SECTION(nt);
+        for (int i = 0; i < nt->FileHeader.NumberOfSections; i++, section++) {
+            if ((const uint8_t *) (section + 1) > file + size
+                || (section->Characteristics & IMAGE_SCN_MEM_DISCARDABLE)
+                || strncmp((const char *) section->Name, ".buildid", IMAGE_SIZEOF_SHORT_NAME) == 0) {
+                continue;
+            }
+            DWORD length = section->Misc.VirtualSize < section->SizeOfRawData
+                               ? section->Misc.VirtualSize : section->SizeOfRawData;
+            if (section->PointerToRawData + (uint64_t) length > (uint64_t) size) {
+                continue;
+            }
+            DWORD address = section->VirtualAddress;
+            hash = fnv1a(hash, (const uint8_t *) &address, sizeof(address));
+            hash = fnv1a(hash, file + section->PointerToRawData, length);
+        }
+    }
+    free(file);
     s_id = hash;
     return s_id;
 }
